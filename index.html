@@ -1,0 +1,591 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:transparent;color:var(--color-text-primary,#1a1a1a);}
+
+/* ─── HEADER ─── */
+.pp-header{padding:1.4rem 0 1rem;border-bottom:1px solid var(--color-border-tertiary,#e5e5e5);margin-bottom:1.2rem;}
+.pp-brand{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-tertiary,#888);margin-bottom:4px;}
+.pp-title{font-size:20px;font-weight:600;color:var(--color-text-primary,#111);line-height:1.3;margin-bottom:5px;}
+.pp-sub{font-size:13px;color:var(--color-text-secondary,#555);line-height:1.5;}
+.pp-updated{font-size:11px;color:var(--color-text-tertiary,#888);margin-top:6px;}
+
+/* ─── STATS BAR ─── */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.2rem;}
+.stat-card{background:var(--color-background-secondary,#f7f7f7);border:0.5px solid var(--color-border-tertiary,#e0e0e0);border-radius:10px;padding:10px 12px;cursor:pointer;transition:border-color .15s;}
+.stat-card:hover{border-color:var(--color-border-secondary,#ccc);}
+.stat-num{font-size:22px;font-weight:700;line-height:1;margin-bottom:3px;}
+.stat-label{font-size:10.5px;color:var(--color-text-secondary,#666);line-height:1.35;}
+.stat-sub{font-size:10px;color:var(--color-text-tertiary,#999);margin-top:2px;}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:6px;margin-bottom:1.2rem;border-bottom:1px solid var(--color-border-tertiary,#e5e5e5);padding-bottom:0;}
+.tab{font-size:12px;font-weight:500;padding:6px 14px 8px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary,#666);transition:all .15s;white-space:nowrap;}
+.tab.active{color:var(--color-text-primary,#111);border-bottom-color:var(--color-text-primary,#111);}
+
+/* ─── FILTER PILLS ─── */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.2rem;}
+.pill{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;cursor:pointer;border:1.5px solid transparent;transition:opacity .15s;}
+.pill.inactive{opacity:.28;}
+.pill-all{background:var(--color-background-secondary,#f0f0f0);color:var(--color-text-secondary,#555);}
+.pill-dip{background:#E6F1FB;color:#185FA5;}
+.pill-sec{background:#FAECE7;color:#993C1D;}
+.pill-pol{background:#EEEDFE;color:#533489;}
+.pill-eco{background:#EAF3DE;color:#3B6D11;}
+.pill-mil{background:#F1EFE8;color:#5F5E5A;}
+.pill-ene{background:#FAEEDA;color:#854F0B;}
+
+/* ─── TIMELINE ─── */
+.timeline{position:relative;padding-left:28px;}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:1.5px;background:var(--color-border-tertiary,#e0e0e0);}
+.tl-item{position:relative;margin-bottom:12px;transition:opacity .18s;}
+.tl-item.hidden{display:none;}
+.tl-dot{position:absolute;left:-22px;top:14px;width:10px;height:10px;border-radius:50%;border:2px solid var(--color-background-primary,#fff);box-shadow:0 0 0 1px rgba(0,0,0,.06);}
+.tl-card{border:0.5px solid var(--color-border-tertiary,#e0e0e0);border-radius:10px;padding:.75rem 1rem;background:var(--color-background-primary,#fff);}
+.tl-card:hover{border-color:var(--color-border-secondary,#c8c8c8);}
+.tl-meta{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+.tl-date{font-size:11px;color:var(--color-text-tertiary,#888);font-weight:500;}
+.tl-cat{font-size:10px;font-weight:500;padding:2px 8px;border-radius:12px;}
+.cat-dip{background:#E6F1FB;color:#185FA5;}
+.cat-sec{background:#FAECE7;color:#993C1D;}
+.cat-pol{background:#EEEDFE;color:#533489;}
+.cat-eco{background:#EAF3DE;color:#3B6D11;}
+.cat-mil{background:#F1EFE8;color:#5F5E5A;}
+.cat-ene{background:#FAEEDA;color:#854F0B;}
+.tl-title{font-size:13.5px;font-weight:600;color:var(--color-text-primary,#111);margin-bottom:4px;line-height:1.4;}
+.tl-body{font-size:12.5px;color:var(--color-text-secondary,#555);line-height:1.6;}
+.section-label{font-size:10px;font-weight:600;color:var(--color-text-tertiary,#888);letter-spacing:.08em;text-transform:uppercase;margin:1.4rem 0 .6rem -28px;padding-left:4px;border-left:3px solid var(--color-border-secondary,#ccc);}
+
+/* Protest location tags */
+.loc-grid{display:flex;flex-direction:column;gap:4px;margin-top:7px;}
+.loc-row{display:flex;gap:6px;align-items:flex-start;}
+.loc-city{font-size:11px;font-weight:600;color:#A32D2D;min-width:90px;padding-top:1px;}
+.loc-desc{font-size:11.5px;color:var(--color-text-secondary,#555);line-height:1.45;}
+
+/* Industry grid */
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;}
+.ind-card{background:var(--color-background-secondary,#f7f7f7);border-radius:8px;padding:7px 10px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);}
+.ind-name{font-size:11.5px;font-weight:600;color:var(--color-text-primary,#111);margin-bottom:2px;}
+.ind-detail{font-size:11px;color:var(--color-text-secondary,#555);line-height:1.45;}
+
+/* ─── TRACKER TAB ─── */
+.tracker-wrap{padding-top:.2rem;}
+.tracker-section{margin-bottom:1.4rem;}
+.tracker-section h3{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-tertiary,#888);margin-bottom:.7rem;padding-bottom:5px;border-bottom:1px solid var(--color-border-tertiary,#e5e5e5);}
+.person-block{margin-bottom:1rem;}
+.person-name{font-size:13.5px;font-weight:600;color:var(--color-text-primary,#111);margin-bottom:.5rem;display:flex;align-items:center;gap:6px;}
+.person-badge{font-size:10px;font-weight:500;background:var(--color-background-secondary,#f0f0f0);color:var(--color-text-secondary,#666);padding:2px 8px;border-radius:10px;}
+.visit-list{display:flex;flex-direction:column;gap:5px;}
+.visit-row{display:flex;align-items:flex-start;gap:10px;padding:7px 10px;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);}
+.visit-num{font-size:15px;font-weight:700;color:#185FA5;min-width:20px;line-height:1.2;}
+.visit-info{}
+.visit-dest{font-size:12.5px;font-weight:600;color:var(--color-text-primary,#111);}
+.visit-date{font-size:11px;color:var(--color-text-tertiary,#888);}
+.visit-note{font-size:11px;color:var(--color-text-secondary,#555);margin-top:1px;line-height:1.4;}
+.dest-tag{display:inline-block;font-size:10px;font-weight:600;padding:1px 7px;border-radius:8px;margin-left:5px;vertical-align:middle;}
+.dest-us{background:#E6F1FB;color:#185FA5;}
+.dest-sa{background:#FFF3E0;color:#B25E00;}
+.dest-ir{background:#FAECE7;color:#993C1D;}
+
+/* Trump counter */
+.trump-posts{display:flex;flex-direction:column;gap:8px;}
+.trump-post{padding:9px 12px;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;border-left:3px solid #185FA5;border:0.5px solid var(--color-border-tertiary,#e0e0e0);border-left:3px solid #185FA5;}
+.trump-post-date{font-size:10.5px;color:var(--color-text-tertiary,#888);font-weight:500;margin-bottom:3px;}
+.trump-post-text{font-size:12px;color:var(--color-text-primary,#111);line-height:1.5;font-style:italic;}
+.trump-post-tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:8px;background:#E6F1FB;color:#185FA5;display:inline-block;margin-top:4px;}
+
+/* Mentions counter */
+.mention-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mention-card{padding:10px 12px;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);}
+.mention-flag{font-size:18px;margin-bottom:4px;}
+.mention-country{font-size:12px;font-weight:600;color:var(--color-text-primary,#111);}
+.mention-count{font-size:24px;font-weight:700;color:#185FA5;line-height:1;}
+.mention-label{font-size:10.5px;color:var(--color-text-secondary,#555);margin-top:2px;line-height:1.3;}
+.mention-note{font-size:10.5px;color:var(--color-text-tertiary,#888);margin-top:5px;font-style:italic;}
+.live-badge{font-size:9px;font-weight:600;background:#FFF0F0;color:#C0392B;padding:2px 6px;border-radius:8px;letter-spacing:.04em;display:inline-flex;align-items:center;gap:3px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#C0392B;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.manual-note{font-size:10.5px;color:var(--color-text-tertiary,#888);font-style:italic;margin-top:.5rem;padding:6px 10px;background:var(--color-background-secondary,#f7f7f7);border-radius:6px;}
+</style>
+</head>
+<body>
+<div style="max-width:680px;padding:0 0 2rem;">
+
+  <!-- HEADER -->
+  <div class="pp-header">
+    <div class="pp-brand">Pakistan Paigham · Interactive Tracker</div>
+    <h1 class="pp-title">Pakistan & the Iran–US War</h1>
+    <p class="pp-sub">Domestic politics, diplomacy, security, economy and energy — from the 12-Day War (June 2025) to the extended ceasefire (April 2026).</p>
+    <div class="pp-updated">Last updated: 24 April 2026 · Tracker updated manually</div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-card" onclick="switchTab('tracker')">
+      <div class="stat-num" style="color:#185FA5;">5</div>
+      <div class="stat-label">Munir diplomatic trips</div>
+      <div class="stat-sub">since Jun 2025</div>
+    </div>
+    <div class="stat-card" onclick="switchTab('tracker')">
+      <div class="stat-num" style="color:#533489;">3</div>
+      <div class="stat-label">Trump Truth Social posts</div>
+      <div class="stat-sub">naming Sharif & Munir</div>
+    </div>
+    <div class="stat-card" onclick="switchTab('tracker')">
+      <div class="stat-num" style="color:#993C1D;">26–35</div>
+      <div class="stat-label">Killed in Shia protests</div>
+      <div class="stat-sub">1 March 2026</div>
+    </div>
+    <div class="stat-card" onclick="switchTab('tracker')">
+      <div class="stat-num" style="color:#3B6D11;">40%+</div>
+      <div class="stat-label">Fuel price surge</div>
+      <div class="stat-sub">in one month, Apr 2026</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('timeline')" id="tab-timeline">Timeline</div>
+    <div class="tab" onclick="switchTab('tracker')" id="tab-tracker">Diplomatic Tracker</div>
+    <div class="tab" onclick="switchTab('trump')" id="tab-trump">Trump Posts</div>
+  </div>
+
+  <!-- ══════════ TIMELINE PANEL ══════════ -->
+  <div id="panel-timeline">
+    <div class="filters">
+      <span class="pill pill-all" onclick="filter('all',this)">All</span>
+      <span class="pill pill-dip" onclick="filter('dip',this)">Foreign Policy</span>
+      <span class="pill pill-sec" onclick="filter('sec',this)">Sectarian</span>
+      <span class="pill pill-pol" onclick="filter('pol',this)">Domestic</span>
+      <span class="pill pill-eco" onclick="filter('eco',this)">Economy</span>
+      <span class="pill pill-mil" onclick="filter('mil',this)">Security</span>
+      <span class="pill pill-ene" onclick="filter('ene',this)">Energy</span>
+    </div>
+    <div class="timeline">
+
+      <div class="section-label">Phase 1 — The 12-Day War · Jun 2025</div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">13 Jun 2025</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">Pakistan condemns Israeli strikes on Iran, declares neutrality</div>
+          <div class="tl-body">Israel strikes Iranian nuclear sites, military leadership and scientists, beginning the 12-Day War. Pakistan's Foreign Ministry condemns the strikes within hours and reaffirms non-alignment. FM Ishaq Dar states Pakistan's policy is "guided by national interests, not alignment with any country."</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="pol">
+        <div class="tl-dot" style="background:#533489;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">18–19 Jun 2025</span><span class="tl-cat cat-pol">Domestic</span></div>
+          <div class="tl-title">Munir lunches with Trump at the White House</div>
+          <div class="tl-body">Field Marshal Asim Munir visits Washington for five days and is hosted by US President Trump for a 1 pm lunch in the Cabinet Room — a first for a US president to host Pakistan's army chief without senior civilian officials present. Trump praises Munir for helping prevent escalation between Pakistan and India after Operation Sindoor in May 2025. Munir also meets Secretary of State Rubio and Defense Secretary Hegseth. Discussions remain a matter of speculation — analysts point to possible coverage of ISKP, India, cryptocurrency, critical minerals, or Iran. Notably, Munir publicly states Pakistan's "clear and strong" support for Iran, while also voicing support for US de-escalation efforts.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">21 Jun 2025</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">US joins the war — Pakistan publicly condemns American strikes on Iran</div>
+          <div class="tl-body">US bombs Fordow, Natanz and Isfahan nuclear sites. Pakistan issues a firm condemnation — a rare public rebuke of Washington — while keeping diplomatic channels open with both sides simultaneously.</div>
+        </div>
+      </div>
+
+      <div class="section-label">Phase 2 — Saudi pact &amp; positioning · Sep–Dec 2025</div>
+
+      <div class="tl-item" data-cat="pol">
+        <div class="tl-dot" style="background:#533489;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">Sep 2025</span><span class="tl-cat cat-pol">Domestic</span></div>
+          <div class="tl-title">Pakistan signs Strategic Mutual Defence Agreement with Saudi Arabia</div>
+          <div class="tl-body">Islamabad and Riyadh sign a pact declaring that aggression against one party is aggression against both, though without automatic military intervention. Munir is seen as its driving force. The agreement embeds Pakistan within Gulf security architecture and adds a visible Sunni-aligned dimension to its balancing act with Tehran.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="pol">
+        <div class="tl-dot" style="background:#533489;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">26 Sep 2025</span><span class="tl-cat cat-pol">Domestic</span></div>
+          <div class="tl-title">Sharif &amp; Munir meet Trump at Oval Office — Gaza plan, trade deal discussed</div>
+          <div class="tl-body">PM Sharif and Field Marshal Munir meet Trump at the White House. Pakistan endorses Trump's 20-point Gaza proposal. Trump calls them "incredible" and "two fantastic people" who backed the plan "100%." A US-Pakistan trade deal is on the table. Pakistan formally nominates Trump for the Nobel Peace Prize for the India–Pakistan ceasefire.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="pol">
+        <div class="tl-dot" style="background:#533489;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">21–22 Dec 2025</span><span class="tl-cat cat-pol">Domestic</span></div>
+          <div class="tl-title">Munir visits Riyadh — awarded Saudi Arabia's highest national honour</div>
+          <div class="tl-body">Munir meets Saudi Defence Minister Prince Khalid bin Salman in Riyadh. On King Salman's directive, he is awarded the King Abdulaziz Medal of Excellent Class — Saudi Arabia's highest honour — for strengthening bilateral defence cooperation and counterterrorism collaboration. Discussions cover regional security dynamics and evolving geopolitical challenges.</div>
+        </div>
+      </div>
+
+      <div class="section-label">Phase 3 — Operation Epic Fury &amp; domestic crisis · Feb–Mar 2026</div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">28 Feb 2026</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">US-Israel kill Khamenei — Pakistan responds within hours, offers mediation</div>
+          <div class="tl-body">Joint US-Israeli strikes kill Iran's Supreme Leader Ayatollah Ali Khamenei. Pakistan's MFA issues a condemnation within hours. FM Dar calls FM Araghchi to convey solidarity. Iran retaliates — partially closing the Strait of Hormuz and striking Gulf states. By 3 March, Dar addresses the Senate: "Pakistan is ready to facilitate dialogue between Washington and Tehran in Islamabad."</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="sec">
+        <div class="tl-dot" style="background:#993C1D;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">1 Mar 2026</span><span class="tl-cat cat-sec">Sectarian</span></div>
+          <div class="tl-title">Nationwide Shia protests: 26–35 killed across Pakistan</div>
+          <div class="tl-body">Protests erupt across Pakistan in major cities including Karachi, Lahore, Islamabad and the contested territory of Gilgit-Baltistan as Shia communities (15–20% of Pakistan's ~250m people) react to Ali Khamenei's killing. Demonstrators burn portraits of Trump and Israeli PM Benjamin Netanyahu.</div>
+          <div class="loc-grid">
+            <div class="loc-row"><span class="loc-city">Karachi</span><span class="loc-desc">US consulate outer wall breached; Marine guards open fire — 10–16 killed, 60+ injured</span></div>
+            <div class="loc-row"><span class="loc-city">Gilgit-Baltistan</span><span class="loc-desc">13+ killed across Gilgit, Skardu and Shigar; UN observer offices set on fire; 3-day curfew imposed; army deployed</span></div>
+            <div class="loc-row"><span class="loc-city">Islamabad</span><span class="loc-desc">Protesters march on US embassy — 3 killed near perimeter</span></div>
+            <div class="loc-row"><span class="loc-city">Lahore, Peshawar, Quetta</span><span class="loc-desc">Large demonstrations; clashes with police; roads blocked</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="sec">
+        <div class="tl-dot" style="background:#993C1D;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">Early Mar 2026</span><span class="tl-cat cat-sec">Sectarian</span></div>
+          <div class="tl-title">Munir summons Shia clerics to Rawalpindi, warns against violence</div>
+          <div class="tl-body">Field Marshal Munir summons Shia clerics to Rawalpindi and warns that violence inside Pakistan will not be tolerated. Munir reportedly tells the audience "if you love Iran so much, then go to Iran." The remark stokes sectarian sensitivities rather than calming them. Analysts warn of a potential Zainabiyoun Brigade recruitment revival and instability along the 900 km Iran-Pakistan border in Balochistan.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="mil">
+        <div class="tl-dot" style="background:#5F5E5A;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">9 Mar 2026</span><span class="tl-cat cat-mil">Security</span></div>
+          <div class="tl-title">Pakistan Navy launches Operation Muhafiz-ul-Bahr</div>
+          <div class="tl-body">As Iran partially closes the Strait of Hormuz — through which Pakistan sources roughly 90% of its oil imports — the navy deploys assets to protect Pakistani merchant vessels and maintain communication systems. Oil prices spike above $150/barrel globally, triggering fuel shortages in Karachi and Lahore.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="ene">
+        <div class="tl-dot" style="background:#854F0B;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">Mar 2026</span><span class="tl-cat cat-ene">Energy</span></div>
+          <div class="tl-title">Rolling blackouts hit cities — government restricts business hours</div>
+          <div class="tl-body">Hormuz closure disrupts oil imports. Rolling power blackouts affect Karachi, Lahore and Islamabad. The government restricts business opening hours and non-essential travel to conserve electricity. Economic analyst Khurram Husain: "The blackouts are the main problem, with knock-on effects for both industries and households."</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="eco">
+        <div class="tl-dot" style="background:#3B6D11;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">Mar–Apr 2026</span><span class="tl-cat cat-eco">Economy</span></div>
+          <div class="tl-title">Industries hit by the war</div>
+          <div class="tl-body">Pakistan's economy, already under a $7 billion IMF programme with inflation at 7.3% in March, faces pressure from multiple directions simultaneously.</div>
+          <div class="ind-grid">
+            <div class="ind-card"><div class="ind-name">Textiles</div><div class="ind-detail">Largest export sector. Energy-intensive operations squeezed by soaring fuel and power tariffs. Export delays from disrupted Gulf shipping. First in line per government officials.</div></div>
+            <div class="ind-card"><div class="ind-name">Cement</div><div class="ind-detail">Energy-heavy production hit hard by rising fuel costs. Operates on narrow margins — tariff rises threaten competitiveness in an already-weak domestic market.</div></div>
+            <div class="ind-card"><div class="ind-name">Remittances</div><div class="ind-detail">54.5% of Pakistan's $38.3bn in annual remittances comes from GCC states. 5 million Pakistani workers in the Gulf face reduced demand for labour — especially construction, hospitality and retail.</div></div>
+            <div class="ind-card"><div class="ind-name">Shipping &amp; transport</div><div class="ind-detail">Freight costs doubled. Karachi transporters report severe margin compression. Insurance costs on Gulf routes surge. $3bn in annual Pak–Iran cross-border trade disrupted.</div></div>
+            <div class="ind-card"><div class="ind-name">Rice &amp; food exports</div><div class="ind-detail">Pakistan exports food, rice and agricultural products to UAE ($1.76bn) and Saudi Arabia ($700m) — its 5th and 7th largest global export markets. Shipping delays and cost spikes erode Gulf competitiveness.</div></div>
+            <div class="ind-card"><div class="ind-name">Small &amp; medium business</div><div class="ind-detail">Blackouts and restricted hours force shutdowns. Lahore and Islamabad traders unable to cover wages. Medium-scale factories reducing shifts and deferred investment.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Phase 4 — Mediation &amp; economic pressure · Late Mar–Apr 2026</div>
+
+      <div class="tl-item" data-cat="eco">
+        <div class="tl-dot" style="background:#3B6D11;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">3 Apr 2026</span><span class="tl-cat cat-eco">Economy</span></div>
+          <div class="tl-title">Fuel prices surge over 40% in a single month — mass protests erupt</div>
+          <div class="tl-body">Government announces record price hikes: petrol rises to PKR 458.40/litre, diesel to PKR 520.35. Street protests erupt in Karachi, Lahore and Islamabad. IMF lowers Pakistan's 2026 growth forecast to 3.6%, down 0.8 percentage points, directly attributing the revision to the West Asia war. Consumer inflation had hit 7.3% in March.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">31 Mar 2026</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">Pakistan &amp; China deliver 5-point peace initiative</div>
+          <div class="tl-body">Both countries jointly deliver a five-point initiative calling for an immediate end to all hostilities. Shuttle diplomacy intensifies — FM Dar coordinates with counterparts in Turkey and Egypt. Islamabad's mediation is driven by both diplomatic positioning and economic necessity: the Hormuz closure is directly constricting Pakistan's import-dependent economy.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">1 Apr 2026</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">US VP JD Vance visits Islamabad — Trump–Munir rapport central to Pakistan's position</div>
+          <div class="tl-body">JD Vance arrives in Islamabad and meets PM Shehbaz Sharif. Trump says Iran has asked for a ceasefire; Iran publicly denies it. The personal rapport between Trump and Field Marshal Munir — built at the June 2025 White House lunch — is widely cited as the foundation of Islamabad's mediator role.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">7–8 Apr 2026</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">Pakistan brokers US–Iran two-week ceasefire — Strait of Hormuz reopens</div>
+          <div class="tl-body">Trump announces on Truth Social that Iran has sent a 10-point proposal "mediated by Pakistani Prime Minister Shehbaz Sharif and Field Marshal Asim Munir" which the US considers a "workable basis to negotiate." A two-week ceasefire takes effect. Iran reopens the Strait of Hormuz to commercial shipping for the duration of the truce. Islamabad declares public holidays for 9–10 April. Over 10,000 security personnel deployed across the capital.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">11–12 Apr 2026</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">Islamabad Talks: JD Vance meets Iranian delegation — negotiations stalled</div>
+          <div class="tl-body">A 300-member US team (Vance, Witkoff, Kushner) meets a 70-member Iranian delegation (FM Araghchi, Speaker Ghalibaf) in Islamabad, moderated by Sharif, Munir and Dar. The US proposes an end to Iran's nuclear program, missile limits, Hormuz reopening, and restrictions on armed group support in exchange for sanctions relief. On 12 April Vance leaves without agreement. Trump subsequently announces a full naval blockade on Iran, banning all vessels to and from Iranian ports.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">15–16 Apr 2026</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">Munir flies to Tehran — carries "new message from Washington"</div>
+          <div class="tl-body">Munir arrives in Tehran, carrying what Pakistan's military describes as a new message from Washington. He meets FM Araghchi on Wednesday — Araghchi says he is "very pleased" to welcome Munir and affirms Iran's commitment to "promoting peace and stability." On Thursday, Munir meets Iranian Parliament Speaker Ghalibaf. Pakistan's Interior Minister Mohsin Naqvi accompanies the delegation. Iran's IRNA says the naval blockade "violated the ceasefire understanding."</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="eco">
+        <div class="tl-dot" style="background:#3B6D11;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">17 Apr 2026</span><span class="tl-cat cat-eco">Economy</span></div>
+          <div class="tl-title">Hormuz breakthrough — Trump praises "two fantastic people"</div>
+          <div class="tl-body">Iran announces the Strait of Hormuz will reopen to commercial shipping for the remainder of the truce. Trump posts on Truth Social: "Thank you to Pakistan and its great prime minister and field marshal, two fantastic people!" PM Sharif responds: "On behalf of the people of Pakistan, Field Marshal Syed Asim Munir, and on my behalf, I express my deep and profound appreciation for your kind and gracious words." The SBP Governor tells parliament reserves are expected to reach ~$18bn by June 2026. Real GDP grew 3.8% in H1 FY26, up from 1.8% the year prior.</div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-cat="dip">
+        <div class="tl-dot" style="background:#185FA5;"></div>
+        <div class="tl-card">
+          <div class="tl-meta"><span class="tl-date">21 Apr 2026</span><span class="tl-cat cat-dip">Foreign Policy</span></div>
+          <div class="tl-title">Pakistan races against ceasefire expiry — Trump extends it indefinitely at Pakistan's request</div>
+          <div class="tl-body">As the ceasefire nears expiry, Iran publicly states it has no plans to return to talks while privately signalling a possible delegation. Trump posts on Truth Social: "Upon the request of Field Marshal Asim Munir, and Prime Minister Shehbaz Sharif, of Pakistan, we have been asked to hold our Attack on the Country of Iran until such time as their leaders and representatives can come up with a unified proposal." The ceasefire is extended indefinitely. The naval blockade continues. German FM arrives in Islamabad as international pressure builds.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ TRACKER PANEL ══════════ -->
+  <div id="panel-tracker" style="display:none;" class="tracker-wrap">
+    <div class="tracker-section">
+      <h3>Field Marshal Asim Munir · Diplomatic Travel Since Jun 2025</h3>
+      <div class="person-block">
+        <div class="visit-list">
+          <div class="visit-row">
+            <div class="visit-num">1</div>
+            <div class="visit-info">
+              <div class="visit-dest">Washington DC <span class="dest-tag dest-us">USA</span></div>
+              <div class="visit-date">18–22 Jun 2025 · 5-day trip</div>
+              <div class="visit-note">White House lunch with Trump (Cabinet Room). Meets Rubio &amp; Hegseth. Publicly backs Iran, supports US de-escalation. Lays groundwork for Pakistan's mediator role.</div>
+            </div>
+          </div>
+          <div class="visit-row">
+            <div class="visit-num">2</div>
+            <div class="visit-info">
+              <div class="visit-dest">Riyadh <span class="dest-tag dest-sa">Saudi Arabia</span></div>
+              <div class="visit-date">Sep 2025</div>
+              <div class="visit-note">Present alongside PM Sharif and Crown Prince MBS for signing of Strategic Mutual Defence Agreement — Pakistan's first-ever such pact.</div>
+            </div>
+          </div>
+          <div class="visit-row">
+            <div class="visit-num">3</div>
+            <div class="visit-info">
+              <div class="visit-dest">Washington DC <span class="dest-tag dest-us">USA</span></div>
+              <div class="visit-date">26 Sep 2025</div>
+              <div class="visit-note">Accompanies PM Sharif to Oval Office meeting with Trump. Gaza plan endorsement. Trade deal discussions. Nobel Peace Prize nomination for Trump conveyed.</div>
+            </div>
+          </div>
+          <div class="visit-row">
+            <div class="visit-num">4</div>
+            <div class="visit-info">
+              <div class="visit-dest">Riyadh <span class="dest-tag dest-sa">Saudi Arabia</span></div>
+              <div class="visit-date">21–22 Dec 2025</div>
+              <div class="visit-note">Meets Prince Khalid bin Salman. Awarded King Abdulaziz Medal of Excellent Class — Saudi Arabia's highest national honour — on King Salman's directive.</div>
+            </div>
+          </div>
+          <div class="visit-row">
+            <div class="visit-num">5</div>
+            <div class="visit-info">
+              <div class="visit-dest">Tehran <span class="dest-tag dest-ir">Iran</span></div>
+              <div class="visit-date">15–16 Apr 2026</div>
+              <div class="visit-note">Carries "new message from Washington" after Islamabad Talks collapse. Meets FM Araghchi (Wed) and Speaker Ghalibaf (Thu). Accompanied by Interior Minister Mohsin Naqvi.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <div style="flex:1;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;padding:8px 12px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:#185FA5;">2×</div>
+          <div style="font-size:11px;color:var(--color-text-secondary,#666);">Washington DC</div>
+        </div>
+        <div style="flex:1;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;padding:8px 12px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:#B25E00;">2×</div>
+          <div style="font-size:11px;color:var(--color-text-secondary,#666);">Riyadh</div>
+        </div>
+        <div style="flex:1;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;padding:8px 12px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:#993C1D;">1×</div>
+          <div style="font-size:11px;color:var(--color-text-secondary,#666);">Tehran</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tracker-section">
+      <h3>PM Shehbaz Sharif · Diplomatic Travel Since Jun 2025</h3>
+      <div class="visit-list">
+        <div class="visit-row">
+          <div class="visit-num">1</div>
+          <div class="visit-info">
+            <div class="visit-dest">Riyadh <span class="dest-tag dest-sa">Saudi Arabia</span></div>
+            <div class="visit-date">Sep 2025</div>
+            <div class="visit-note">Signs Strategic Mutual Defence Agreement with Crown Prince MBS alongside Field Marshal Munir.</div>
+          </div>
+        </div>
+        <div class="visit-row">
+          <div class="visit-num">2</div>
+          <div class="visit-info">
+            <div class="visit-dest">Washington DC <span class="dest-tag dest-us">USA</span></div>
+            <div class="visit-date">26 Sep 2025</div>
+            <div class="visit-note">Oval Office with Trump and Munir. Gaza plan, trade deal, Nobel Peace Prize nomination.</div>
+          </div>
+        </div>
+        <div class="visit-row">
+          <div class="visit-num">3</div>
+          <div class="visit-info">
+            <div class="visit-dest">Islamabad — hosting</div>
+            <div class="visit-date">11–12 Apr 2026</div>
+            <div class="visit-note">Hosts and co-moderates Islamabad Talks between US (Vance) and Iran (Araghchi, Ghalibaf). Leads Pakistan's mediation team alongside Munir and Dar.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tracker-section">
+      <h3>Deputy PM &amp; FM Ishaq Dar · Diplomatic Activity Since Jun 2025</h3>
+      <div class="visit-list">
+        <div class="visit-row">
+          <div class="visit-num">1</div>
+          <div class="visit-info">
+            <div class="visit-dest">Turkey &amp; Egypt</div>
+            <div class="visit-date">Mar–Apr 2026</div>
+            <div class="visit-note">Shuttle diplomacy — coordinates with Turkish and Egyptian foreign ministers as part of Pakistan's 5-point peace initiative with China.</div>
+          </div>
+        </div>
+        <div class="visit-row">
+          <div class="visit-num">2</div>
+          <div class="visit-info">
+            <div class="visit-dest">Islamabad — hosting</div>
+            <div class="visit-date">11–12 Apr 2026 &amp; ongoing</div>
+            <div class="visit-note">Receives JD Vance. Co-moderates Islamabad Talks. Regular phone calls with FM Araghchi throughout April. Receives German FM in Islamabad 20–22 Apr.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tracker-section">
+      <h3>US &amp; Iran Mentions of Pakistan <span class="live-badge"><span class="live-dot"></span>Live — updated manually</span></h3>
+      <div class="mention-cards">
+        <div class="mention-card">
+          <div class="mention-flag">🇺🇸</div>
+          <div class="mention-country">United States</div>
+          <div class="mention-count">5+</div>
+          <div class="mention-label">Confirmed public mentions of Pakistan on official accounts (Truth Social, State Dept, White House) since Jun 2025</div>
+          <div class="mention-note">Includes: Jun 2025 White House (Munir lunch); Sep 26 (Gaza plan); Apr 7–8 (ceasefire brokered); Apr 17 (Hormuz, "two fantastic people"); Apr 21 (ceasefire extension — "upon the request of Field Marshal Asim Munir...")</div>
+        </div>
+        <div class="mention-card">
+          <div class="mention-flag">🇮🇷</div>
+          <div class="mention-country">Iran</div>
+          <div class="mention-count">4+</div>
+          <div class="mention-label">Confirmed mentions of Pakistan in official Iranian statements (IRNA, Araghchi posts) since Feb 2026</div>
+          <div class="mention-note">Includes: Araghchi statement on Munir Tehran visit ("very pleased to welcome"); IRNA on Islamabad talks; FM statements to Pakistani delegation Apr 15–16; Tehran signal to return to talks via Pakistani channels.</div>
+        </div>
+      </div>
+      <div class="manual-note">This counter is updated manually by Pakistan Paigham editors. To suggest an addition, reply to this post.</div>
+    </div>
+  </div>
+
+  <!-- ══════════ TRUMP POSTS PANEL ══════════ -->
+  <div id="panel-trump" style="display:none;">
+    <p style="font-size:13px;color:var(--color-text-secondary,#555);margin-bottom:1rem;line-height:1.6;">Confirmed Truth Social and public statements by President Trump that directly named or credited Pakistan, PM Shehbaz Sharif or Field Marshal Munir — since the start of the Iran conflict in June 2025.</p>
+    <div class="trump-posts">
+      <div class="trump-post">
+        <div class="trump-post-date">Jun 19, 2025 · Public remarks, White House</div>
+        <div class="trump-post-text">"It is an honour for me to meet Asim Munir. I invited him to thank him for not going to war. He deserves appreciation for helping secure the ceasefire. Pakistan and India are both nuclear powers. The leadership of both nations is truly remarkable."</div>
+        <span class="trump-post-tag">Verbal — White House press pool</span>
+      </div>
+      <div class="trump-post">
+        <div class="trump-post-date">Sep 26, 2025 · Verbal, White House / UNGA sidelines</div>
+        <div class="trump-post-text">"The Prime Minister and Field Marshal from Pakistan were with us from the beginning. They're incredible. They just put out a statement that they fully believe in this pact. They backed this 100%."</div>
+        <span class="trump-post-tag">Verbal — Gaza plan endorsement</span>
+      </div>
+      <div class="trump-post">
+        <div class="trump-post-date">7–8 Apr 2026 · Truth Social</div>
+        <div class="trump-post-text">Trump announces ceasefire brokered by "Pakistani Prime Minister Shehbaz Sharif and Field Marshal Asim Munir" — describing Iran's 10-point proposal as a "workable basis on which to negotiate."</div>
+        <span class="trump-post-tag">Truth Social · Ceasefire announcement</span>
+      </div>
+      <div class="trump-post">
+        <div class="trump-post-date">17 Apr 2026 · Truth Social</div>
+        <div class="trump-post-text">"Thank you to Pakistan and its great prime minister and field marshal, two fantastic people!"</div>
+        <span class="trump-post-tag">Truth Social · Hormuz opening</span>
+      </div>
+      <div class="trump-post">
+        <div class="trump-post-date">21 Apr 2026 · Truth Social</div>
+        <div class="trump-post-text">"Based on the fact that the Government of Iran is seriously fractured, not unexpectedly so and, upon the request of Field Marshal Asim Munir, and Prime Minister Shehbaz Sharif, of Pakistan, we have been asked to hold our Attack on the Country of Iran until such time as their leaders and representatives can come up with a unified proposal."</div>
+        <span class="trump-post-tag">Truth Social · Ceasefire extension</span>
+      </div>
+    </div>
+    <div style="margin-top:1rem;font-size:12px;color:var(--color-text-tertiary,#888);">Fox News separately reports Trump has called Munir "an exceptional man," "a great fighter" and "my favorite field marshal" in various public remarks.</div>
+    <div style="display:flex;gap:10px;margin-top:1rem;">
+      <div style="flex:1;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;padding:10px 14px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#185FA5;">3</div>
+        <div style="font-size:11.5px;color:var(--color-text-secondary,#666);">Confirmed Truth Social posts naming Sharif &amp; / or Munir</div>
+      </div>
+      <div style="flex:1;background:var(--color-background-secondary,#f7f7f7);border-radius:8px;padding:10px 14px;border:0.5px solid var(--color-border-tertiary,#e0e0e0);text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#533489;">2</div>
+        <div style="font-size:11.5px;color:var(--color-text-secondary,#666);">Additional verbal remarks at White House / public events</div>
+      </div>
+    </div>
+    <div class="manual-note" style="margin-top:1rem;">Counter updated manually. Last checked: 24 April 2026.</div>
+  </div>
+
+</div>
+
+<script>
+// ─── FILTER
+let active = new Set(['all','dip','sec','pol','eco','mil','ene']);
+function filter(cat, el) {
+  if(cat === 'all') {
+    active = new Set(['all','dip','sec','pol','eco','mil','ene']);
+  } else {
+    active.delete('all');
+    if(active.has(cat)) { active.delete(cat); if(active.size === 0) active = new Set(['all','dip','sec','pol','eco','mil','ene']); }
+    else { active.add(cat); if(active.size === 6) active.add('all'); }
+  }
+  document.querySelectorAll('.pill').forEach(p => {
+    const pc = p.getAttribute('onclick').replace("filter('","").replace("',this)","");
+    p.classList.toggle('inactive', !active.has(pc));
+  });
+  document.querySelectorAll('.tl-item').forEach(item => {
+    item.classList.toggle('hidden', !active.has('all') && !active.has(item.getAttribute('data-cat')));
+  });
+}
+
+// Init filters
+filter('all', null);
+
+// ─── TABS
+function switchTab(tab) {
+  ['timeline','tracker','trump'].forEach(t => {
+    document.getElementById('panel-'+t).style.display = t === tab ? '' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t === tab);
+  });
+}
+</script>
+</body>
+</html>
